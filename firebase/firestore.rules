@@ -1,0 +1,11 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // All exam CRUD goes through Nuxt Nitro using the Firebase Admin SDK.
+    // Do not expose question documents directly: they may contain gabaritos.
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

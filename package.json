@@ -1,0 +1,51 @@
+{
+  "name": "prova-python",
+  "private": true,
+  "type": "module",
+  "version": "0.0.0",
+  "scripts": {
+    "dev": "nuxt dev",
+    "dev:local": "nuxt dev --host 127.0.0.1",
+    "dev:lan": "nuxt dev --host 0.0.0.0",
+    "build": "nuxt build",
+    "preview": "nuxt preview",
+    "postinstall": "nuxt prepare",
+    "test": "vitest run",
+    "typecheck": "nuxt typecheck",
+    "firebase:deploy": "cd firebase && firebase deploy --only apphosting,firestore:rules,firestore:indexes",
+    "firebase:deploy:apphosting": "cd firebase && firebase deploy --only apphosting",
+    "firebase:deploy:rules": "cd firebase && firebase deploy --only firestore:rules,firestore:indexes",
+    "firebase:seed": "node scripts/seed-firestore.mjs"
+  },
+  "dependencies": {
+    "@codemirror/commands": "^6.10.3",
+    "@codemirror/lang-python": "^6.2.1",
+    "@codemirror/language": "^6.12.3",
+    "@codemirror/state": "^6.6.0",
+    "@codemirror/theme-one-dark": "^6.1.3",
+    "@codemirror/view": "^6.43.1",
+    "@fontsource/roboto": "^5.2.10",
+    "@fontsource/roboto-mono": "^5.2.9",
+    "@iconify-json/lucide": "^1.2.114",
+    "@iconify-json/simple-icons": "^1.2.86",
+    "@nuxt/eslint": "1.16.0",
+    "@nuxt/ui": "^4.9.0",
+    "@pinia/nuxt": "^0.11.3",
+    "@vueuse/nuxt": "14.3.0",
+    "codemirror": "^6.0.2",
+    "firebase": "^12.15.0",
+    "firebase-admin": "^14.0.0",
+    "nuxt": "^4.4.8",
+    "nuxt-codemirror": "0.0.20",
+    "pinia": "^3.0.4",
+    "pyodide": "^314.0.0",
+    "vue": "^3.5.38"
+  },
+  "devDependencies": {
+    "@vue/test-utils": "^2.4.11",
+    "happy-dom": "^20.10.6",
+    "tailwindcss": "^4.3.1",
+    "typescript": "~6.0.3",
+    "vitest": "^4.1.9"
+  }
+}

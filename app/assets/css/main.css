@@ -1,0 +1,168 @@
+@import "tailwindcss";
+@import "@nuxt/ui";
+
+@import "@fontsource/roboto/latin-400.css";
+@import "@fontsource/roboto/latin-500.css";
+@import "@fontsource/roboto/latin-700.css";
+@import "@fontsource/roboto-mono/latin-400.css";
+@import "@fontsource/roboto-mono/latin-700.css";
+
+@theme {
+  --font-heading: "Roboto", sans-serif;
+  --font-body: "Roboto", sans-serif;
+  --font-mono: "Roboto Mono", monospace;
+  --color-arena-bg: #07080d;
+  --color-arena-panel: #10131d;
+  --color-arena-panel-2: #171b28;
+  --color-arena-line: #263247;
+  --color-arena-cyan: #19d3ff;
+  --color-arena-pink: #ff4d8f;
+  --color-arena-amber: #ffb020;
+  --color-arena-green: #33e28f;
+}
+
+:root {
+  --ui-primary: var(--color-cyan-500);
+  --ui-secondary: var(--color-pink-500);
+  --ui-success: var(--color-emerald-500);
+  --ui-warning: var(--color-amber-500);
+  --ui-error: var(--color-rose-500);
+  --ui-neutral: var(--color-zinc-500);
+  color-scheme: dark;
+}
+
+html,
+body,
+#__nuxt {
+  min-height: 100%;
+  background: #07080d;
+}
+
+body {
+  margin: 0;
+  overflow: hidden;
+  font-family: "Roboto", sans-serif;
+  color: #f4f7fb;
+}
+
+button,
+textarea,
+input {
+  font: inherit;
+}
+
+.arena-bg {
+  min-height: 100dvh;
+  background:
+    radial-gradient(circle at 10% 10%, rgba(25, 211, 255, 0.18), transparent 32rem),
+    radial-gradient(circle at 90% 0%, rgba(255, 77, 143, 0.16), transparent 30rem),
+    linear-gradient(135deg, #07080d 0%, #0b1020 52%, #080812 100%);
+}
+
+.arena-grid {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background-image:
+    linear-gradient(rgba(25, 211, 255, 0.055) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(25, 211, 255, 0.055) 1px, transparent 1px);
+  background-size: 44px 44px;
+  mask-image: linear-gradient(to bottom, black, transparent 85%);
+}
+
+.arena-card {
+  border: 1px solid rgba(148, 163, 184, 0.18);
+  background: rgba(16, 19, 29, 0.82);
+  box-shadow: 0 18px 50px rgba(0, 0, 0, 0.28);
+  backdrop-filter: blur(16px);
+}
+
+.arena-gradient-text {
+  background: linear-gradient(135deg, #19d3ff 0%, #f4f7fb 45%, #ff4d8f 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.arena-kicker {
+  font-family: "Roboto Mono", monospace;
+  font-size: 0.72rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: rgba(25, 211, 255, 0.78);
+}
+
+.terminal-panel {
+  border: 1px solid rgba(25, 211, 255, 0.22);
+  border-radius: 8px;
+  background: rgba(5, 8, 15, 0.92);
+  color: #33e28f;
+  font-family: "Roboto Mono", monospace;
+  font-size: 13px;
+  outline: none;
+  padding: 12px;
+  resize: none;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.terminal-panel:focus {
+  border-color: rgba(25, 211, 255, 0.72);
+  box-shadow: 0 0 0 3px rgba(25, 211, 255, 0.12);
+}
+
+.terminal-panel::placeholder {
+  color: rgba(244, 247, 251, 0.28);
+}
+
+.cm-editor {
+  height: 100%;
+  overflow: hidden;
+  border: 1px solid rgba(25, 211, 255, 0.22);
+  border-radius: 8px;
+  font-family: "Roboto Mono", monospace !important;
+  font-size: 14px;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.cm-editor .cm-scroller {
+  font-family: "Roboto Mono", monospace !important;
+}
+
+.cm-editor.cm-focused {
+  border-color: rgba(25, 211, 255, 0.86);
+  box-shadow: 0 0 0 3px rgba(25, 211, 255, 0.12);
+  outline: none;
+}
+
+.cm-editor .cm-gutters {
+  border-right: 1px solid rgba(25, 211, 255, 0.12);
+  background: #090d16;
+}
+
+.status-pendente { color: rgba(244, 247, 251, 0.42); }
+.status-correta { color: #33e28f; }
+.status-incorreta { color: #ff4d8f; }
+.status-erro { color: #ffb020; }
+
+@keyframes pulse-alert {
+  0%, 100% { opacity: 1; filter: drop-shadow(0 0 0 rgba(255, 77, 143, 0)); }
+  50% { opacity: 0.62; filter: drop-shadow(0 0 12px rgba(255, 77, 143, 0.48)); }
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.timer-warning {
+  animation: pulse-alert 1s ease-in-out infinite;
+  color: #ff4d8f;
+}
+
+.spin-icon {
+  animation: spin 1s linear infinite;
+}
+
+::-webkit-scrollbar { width: 8px; height: 8px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: rgba(25, 211, 255, 0.28); border-radius: 999px; }
+::-webkit-scrollbar-thumb:hover { background: rgba(25, 211, 255, 0.55); }
