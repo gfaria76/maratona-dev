@@ -3,6 +3,8 @@
 </template>
 
 <script setup lang="ts">
+import type { EditorView as CodeMirrorEditorView, ViewUpdate } from '@codemirror/view'
+
 /**
  * CodeMirror 6 wrapper — Python syntax highlighting with neon dark theme.
  * Uses dynamic imports to avoid SSR issues.
@@ -19,7 +21,7 @@ const emit = defineEmits<{
 }>()
 
 const editorContainer = ref<HTMLElement>()
-let editorView: any = null
+let editorView: CodeMirrorEditorView | null = null
 
 onMounted(async () => {
   if (!editorContainer.value) return
@@ -33,7 +35,7 @@ onMounted(async () => {
   const { defaultKeymap, indentWithTab, history, historyKeymap } = await import('@codemirror/commands')
   const { syntaxHighlighting, defaultHighlightStyle, bracketMatching, indentOnInput } = await import('@codemirror/language')
 
-  const updateListener = EditorView.updateListener.of((update: any) => {
+  const updateListener = EditorView.updateListener.of((update: ViewUpdate) => {
     if (update.docChanged) {
       emit('update:modelValue', update.state.doc.toString())
     }

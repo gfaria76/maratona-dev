@@ -1,6 +1,6 @@
 import { getRequestHost, getRequestIP, type H3Event } from 'h3'
 import { isTeacherEmail, isUfmsEmail, normalizeClientIp } from './access-control'
-import { getAdminAuth, getAdminFirestore } from './firebase-admin'
+import { getAdminAuth } from './firebase-admin'
 
 export interface CurrentExamUser {
   id: string
@@ -52,10 +52,6 @@ export function getRequestIp(event: H3Event): string {
       || undefined,
     getRequestHost(event, { xForwardedHost: true })
   )
-}
-
-export function getServiceClient(event: H3Event) {
-  return getAdminFirestore()
 }
 
 function getBearerToken(event: H3Event) {

@@ -22,6 +22,7 @@
 </template>
 
 <script setup lang="ts">
+import { getErrorMessage } from '~/utils/error-message'
 
 definePageMeta({
   middleware: 'auth',
@@ -59,8 +60,8 @@ onMounted(async () => {
     ready.value = true
     await requestFullscreen()
     registerSecurityListeners()
-  } catch (e: any) {
-    blockedMessage.value = e?.data?.message || 'Não foi possível validar sua sessão.'
+  } catch (e: unknown) {
+    blockedMessage.value = getErrorMessage(e, 'Não foi possível validar sua sessão.')
   }
 })
 

@@ -99,7 +99,8 @@
 
 <script setup lang="ts">
 import { GoogleAuthProvider, signInWithPopup, signOut } from 'firebase/auth'
-import type { ConfigProva } from '#shared/types/exam'
+import type { ConfigProva, QuestaoPublica } from '#shared/types/exam'
+import { getErrorMessage } from '~/utils/error-message'
 
 const router = useRouter()
 const route = useRoute()
@@ -125,7 +126,7 @@ if (route.query.error === 'domain') {
 onMounted(async () => {
   try {
     config.value = await $fetch<ConfigProva>('/api/config')
-    const questoes = await $fetch<any[]>('/api/questoes')
+    const questoes = await $fetch<QuestaoPublica[]>('/api/questoes')
     totalQuestoes.value = questoes.length
   } catch (e) {
     console.error('Failed to load config:', e)
@@ -146,8 +147,8 @@ async function handleGoogleLogin() {
       await signOut(auth)
       errorMessage.value = 'Apenas emails @ufms.br são permitidos.'
     }
-  } catch (e: any) {
-    errorMessage.value = e?.message || 'Não foi possível entrar com Google.'
+  } catch (e: unknown) {
+    errorMessage.value = getErrorMessage(e, 'Não foi possível entrar com Google.')
   } finally {
     loading.value = false
   }

@@ -125,7 +125,7 @@ export function validarImpedimentos(codigo: string, impedimentos: string[]): str
 export async function executarTestes(
   codigo: string,
   funcaoNome: string,
-  testes: Array<{ entrada: any; esperado: any }>,
+  testes: Array<{ entrada: unknown; esperado: unknown }>,
   arquivos: CodigoArquivo[] = []
 ): Promise<TesteResult[]> {
   const testesJson = JSON.stringify(testes)

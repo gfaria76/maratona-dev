@@ -83,14 +83,14 @@
         <form class="range-form" @submit.prevent="saveRange">
           <label>
             <span>Nome</span>
-            <input v-model.trim="rangeForm.label" placeholder="Laboratório 01" />
+            <input v-model.trim="rangeForm.label" placeholder="Laboratório 01" >
           </label>
           <label>
             <span>CIDR</span>
-            <input v-model.trim="rangeForm.cidr" placeholder="192.168.10.0/24" />
+            <input v-model.trim="rangeForm.cidr" placeholder="192.168.10.0/24" >
           </label>
           <label class="switch-line">
-            <input v-model="rangeForm.active" type="checkbox" />
+            <input v-model="rangeForm.active" type="checkbox" >
             <span>Ativa</span>
           </label>
           <UButton
@@ -163,7 +163,7 @@
             <h2>Sessões</h2>
             <p>Acompanhamento de alunos conectados e sessões bloqueadas.</p>
           </div>
-          <input v-model.trim="sessionFilter" class="compact-filter" placeholder="Filtrar por email ou IP" />
+          <input v-model.trim="sessionFilter" class="compact-filter" placeholder="Filtrar por email ou IP" >
         </div>
 
         <div class="table-card">
@@ -223,7 +223,7 @@
             <p>IPs bloqueados automaticamente ou por intervenção manual.</p>
           </div>
           <label class="switch-line">
-            <input v-model="showInactiveBlocks" type="checkbox" />
+            <input v-model="showInactiveBlocks" type="checkbox" >
             <span>Mostrar liberados</span>
           </label>
         </div>
@@ -266,7 +266,7 @@
             <h2>Acompanhamento de acertos</h2>
             <p>Classificação por questões 100% corretas, com desempate pelo horário da submissão.</p>
           </div>
-          <input v-model.trim="scoreFilter" class="compact-filter" placeholder="Filtrar por aluno ou IP" />
+          <input v-model.trim="scoreFilter" class="compact-filter" placeholder="Filtrar por aluno ou IP" >
         </div>
 
         <div class="score-legend" aria-label="Legenda de acertos">
@@ -386,6 +386,8 @@
 </template>
 
 <script setup lang="ts">
+import { getErrorMessage } from '~/utils/error-message'
+
 definePageMeta({
   middleware: 'auth',
 })
@@ -553,8 +555,8 @@ async function loadData(options: { silent?: boolean } = {}) {
     events.value = data.events
     questions.value = data.questions
     scoreboard.value = data.scoreboard
-  } catch (e: any) {
-    errorMessage.value = e?.data?.message || 'Verifique se sua conta está autorizada como professor.'
+  } catch (e: unknown) {
+    errorMessage.value = getErrorMessage(e, 'Verifique se sua conta está autorizada como professor.')
   } finally {
     dataRequestRunning = false
     if (!options.silent) loading.value = false
@@ -581,8 +583,8 @@ async function saveRange() {
     })
     resetRangeForm()
     await loadData()
-  } catch (e: any) {
-    errorMessage.value = e?.data?.message || 'Não foi possível salvar a faixa.'
+  } catch (e: unknown) {
+    errorMessage.value = getErrorMessage(e, 'Não foi possível salvar a faixa.')
   } finally {
     savingRange.value = false
   }
@@ -705,8 +707,8 @@ async function confirmAction() {
 
     pendingAction.value = null
     actionReason.value = ''
-  } catch (e: any) {
-    errorMessage.value = e?.data?.message || 'A ação não pôde ser concluída.'
+  } catch (e: unknown) {
+    errorMessage.value = getErrorMessage(e, 'A ação não pôde ser concluída.')
   } finally {
     actionRunning.value = false
   }

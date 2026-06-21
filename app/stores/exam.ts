@@ -1,4 +1,5 @@
 import type { CodigoArquivo, ConfigProva, QuestaoPublica, ResultadoCorrecao, StatusQuestao } from '#shared/types/exam'
+import { getErrorMessage } from '~/utils/error-message'
 
 export type AccessReason =
   | 'allowed'
@@ -146,7 +147,7 @@ export const useExamStore = defineStore('exam', () => {
       })
       resultados.value = { ...resultados.value, [questaoId]: resultado }
       return resultado
-    } catch (e: any) {
+    } catch (e: unknown) {
       const erroResult: ResultadoCorrecao = {
         questaoId,
         acertos: 0,
@@ -154,7 +155,7 @@ export const useExamStore = defineStore('exam', () => {
         passou: false,
         impedimentosViolados: [],
         detalhes: [],
-        erro: e?.data?.message || 'Erro ao submeter. Tente novamente.',
+        erro: getErrorMessage(e, 'Erro ao submeter. Tente novamente.'),
       }
       resultados.value = { ...resultados.value, [questaoId]: erroResult }
       return erroResult
@@ -175,8 +176,8 @@ export const useExamStore = defineStore('exam', () => {
       })
       outputExecucao.value = resultado.output
       erroExecucao.value = resultado.erro
-    } catch (e: any) {
-      erroExecucao.value = e?.data?.message || 'Erro ao executar.'
+    } catch (e: unknown) {
+      erroExecucao.value = getErrorMessage(e, 'Erro ao executar.')
     } finally {
       executando.value = false
     }

@@ -1,7 +1,8 @@
 <template>
   <aside class="question-sidebar">
     <div class="question-list">
-      <button v-for="(q, idx) in questoes" :key="q.id" class="question-item" :class="{
+      <button
+v-for="(q, idx) in questoes" :key="q.id" class="question-item" :class="{
         'is-active': idx === questaoAtualIdx,
         'is-correct': statusQuestoes[q.id] === 'correta',
         'is-incorrect': statusQuestoes[q.id] === 'incorreta',

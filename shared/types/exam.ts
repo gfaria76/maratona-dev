@@ -1,6 +1,6 @@
 export interface TesteCase {
-  entrada: any
-  esperado: any
+  entrada: unknown
+  esperado: unknown
 }
 
 export interface CodigoArquivo {
@@ -18,7 +18,7 @@ export interface Questao {
   tags: string[]
   exemplo: {
     chamada: string
-    retorno_esperado: any
+    retorno_esperado: unknown
   }
   gabarito: string
   testes: TesteCase[]
@@ -35,15 +35,15 @@ export interface QuestaoPublica {
   tags: string[]
   exemplo: {
     chamada: string
-    retorno_esperado: any
+    retorno_esperado: unknown
   }
 }
 
 export interface ResultadoTeste {
   indice: number
   passou: boolean
-  entrada?: any
-  esperado?: any
+  entrada?: unknown
+  esperado?: unknown
   obtido?: string
   saida?: string
   erro?: boolean

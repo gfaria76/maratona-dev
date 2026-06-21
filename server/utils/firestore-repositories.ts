@@ -170,14 +170,14 @@ export async function listIpBlocks(marathonId: string): Promise<FirestoreIpBlock
   const snapshot = await marathonCollection(marathonId, 'ipBlocks').get()
   return snapshot.docs
     .map((doc) => ({ id: doc.id, ...doc.data() }) as FirestoreIpBlock)
-    .sort(descByDate('blocked_at'))
+    .sort((a, b) => compareDateDesc(a.blocked_at, b.blocked_at))
 }
 
 export async function listSecurityEvents(marathonId: string, limit = 150) {
   const snapshot = await marathonCollection(marathonId, 'securityEvents').get()
   return snapshot.docs
-    .map((doc) => ({ id: doc.id, ...doc.data() }))
-    .sort(descByDate('created_at'))
+    .map((doc) => ({ id: doc.id, ...doc.data() }) as FirestoreSecurityEvent)
+    .sort((a, b) => compareDateDesc(a.created_at, b.created_at))
     .slice(0, limit)
 }
 
@@ -185,7 +185,7 @@ export async function listSessions(marathonId: string, limit = 100): Promise<Fir
   const snapshot = await marathonCollection(marathonId, 'sessions').get()
   return snapshot.docs
     .map((doc) => ({ id: doc.id, ...doc.data() }) as FirestoreSession)
-    .sort(descByDate('last_seen_at'))
+    .sort((a, b) => compareDateDesc(a.last_seen_at, b.last_seen_at))
     .slice(0, limit)
 }
 
@@ -193,7 +193,7 @@ export async function listSubmissions(marathonId: string, limit = 1000): Promise
   const snapshot = await marathonCollection(marathonId, 'submissions').get()
   return snapshot.docs
     .map((doc) => ({ id: doc.id, ...doc.data() }) as FirestoreSubmission)
-    .sort(descByDate('created_at'))
+    .sort((a, b) => compareDateDesc(a.created_at, b.created_at))
     .slice(0, limit)
 }
 
@@ -411,10 +411,8 @@ function questionsCollection(marathonId: string) {
   return marathonCollection(marathonId, 'questions')
 }
 
-function descByDate(field: string) {
-  return (a: Record<string, any>, b: Record<string, any>) => (
-    Date.parse(String(b[field] || '')) - Date.parse(String(a[field] || ''))
-  )
+function compareDateDesc(a: unknown, b: unknown) {
+  return Date.parse(String(b || '')) - Date.parse(String(a || ''))
 }
 
 async function deleteDocs(docs: QueryDocumentSnapshot<DocumentData>[]) {

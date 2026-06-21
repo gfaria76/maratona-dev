@@ -82,7 +82,7 @@ function handleLargePaste(payload: { length: number }) {
   })
 }
 
-function formatValue(val: any): string {
+function formatValue(val: unknown): string {
   if (val === undefined || val === null) return '-'
   if (typeof val === 'string') return val
   return JSON.stringify(val)

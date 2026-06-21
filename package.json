@@ -12,9 +12,9 @@
     "postinstall": "nuxt prepare",
     "test": "vitest run",
     "typecheck": "nuxt typecheck",
-    "firebase:deploy": "cd firebase && firebase deploy --only apphosting,firestore:rules,firestore:indexes",
-    "firebase:deploy:apphosting": "cd firebase && firebase deploy --only apphosting",
-    "firebase:deploy:rules": "cd firebase && firebase deploy --only firestore:rules,firestore:indexes",
+    "firebase:deploy": "firebase deploy --only firestore:rules,firestore:indexes",
+    "firebase:deploy:apphosting": "firebase apphosting:backends:list",
+    "firebase:deploy:rules": "firebase deploy --only firestore:rules,firestore:indexes",
     "firebase:seed": "node scripts/seed-firestore.mjs"
   },
   "dependencies": {

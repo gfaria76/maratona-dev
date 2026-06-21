@@ -37,7 +37,7 @@ FIREBASE_CLIENT_EMAIL=
 FIREBASE_PRIVATE_KEY=
 ```
 
-As configurações Firebase ficam em `firebase/`.
+As configurações Firebase ficam na raiz do projeto: `.firebaserc`, `firebase.json`, `firestore.rules`, `firestore.indexes.json` e `apphosting.yaml`.
 
 ## Banco Firestore
 
