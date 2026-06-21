@@ -1,48 +1,65 @@
 <template>
-  <div class="io-panel arena-card">
+  <UCard class="io-panel" :ui="{ body: 'flex flex-col gap-4' }">
     <section class="io-section">
       <div class="panel-title">
         <UIcon name="i-lucide-square-terminal" />
         <span>Validação local</span>
       </div>
 
-      <label class="io-label">Código de teste</label>
-      <textarea
-        v-model="codigoTeste"
-        class="terminal-panel io-input code-test-input"
-        placeholder="Ex.: print(somar_lista([1, 2, 3]))"
-        rows="5"
-      />
+      <UFormField label="Código de teste" name="codigo_teste">
+        <UTextarea
+          v-model="codigoTesteLocal"
+          class="font-mono"
+          :rows="5"
+          autoresize
+          :maxrows="8"
+          placeholder="Sem código de teste para esta questão."
+          variant="outline"
+        />
+      </UFormField>
 
-      <label class="io-label">Entrada stdin</label>
-      <textarea
-        v-model="inputText"
-        class="terminal-panel io-input"
-        placeholder="Valores de input, um por linha..."
-        rows="4"
-      />
+      <UFormField label="Entrada stdin" name="stdin">
+        <UTextarea
+          v-model="stdinLocal"
+          class="font-mono"
+          :rows="4"
+          autoresize
+          :maxrows="6"
+          placeholder="Sem entrada stdin para esta questão."
+          variant="outline"
+        />
+      </UFormField>
 
       <UButton
         icon="i-lucide-play"
         color="primary"
-        variant="outline"
+        variant="solid"
         :loading="executando"
         :disabled="executando || carregando || provaFinalizada"
         label="Validar"
         @click="handleValidar"
       />
 
-      <label class="io-label">Saída stdout</label>
-      <div class="terminal-panel io-output" :class="{ 'has-error': !!erroExecucao }">
+      <div class="io-label">
+        <UIcon name="i-lucide-scroll-text" />
+        <span>Saída stdout obtida</span>
+      </div>
+      <div class="io-output" :class="{ 'has-error': !!erroExecucao }">
         <template v-if="outputExecucao || erroExecucao">
-          <pre v-if="outputExecucao" class="output-text">{{ outputExecucao }}</pre>
+          <pre v-if="outputExecucao" class="output-text">{{
+            outputExecucao
+          }}</pre>
           <pre v-if="erroExecucao" class="error-text">{{ erroExecucao }}</pre>
         </template>
-        <span v-else class="placeholder-text">A saída da validação aparecerá aqui.</span>
+        <span v-else class="placeholder-text"
+          >A saída da validação aparecerá aqui.</span
+        >
       </div>
     </section>
 
-    <section class="io-section submission-section">
+    <USeparator />
+
+    <section class="io-section">
       <div class="panel-title">
         <UIcon name="i-lucide-send" />
         <span>Submissão oficial</span>
@@ -51,16 +68,27 @@
       <UButton
         icon="i-lucide-upload"
         color="warning"
-        variant="outline"
+        variant="soft"
         :loading="carregando"
         :disabled="executando || carregando || provaFinalizada"
         label="Submeter"
         @click="handleSubmeter"
       />
 
-      <div v-if="resultado" class="submission-result" :class="resultado.passou ? 'is-success' : 'is-fail'">
+      <UCard
+        v-if="resultado"
+        class="submission-result"
+        :class="resultado.passou ? 'is-success' : 'is-fail'"
+        :ui="{ body: 'flex flex-col gap-3 p-3 sm:p-3' }"
+      >
         <div class="result-line">
-          <UIcon :name="resultado.passou ? 'i-lucide-circle-check' : 'i-lucide-circle-alert'" />
+          <UIcon
+            :name="
+              resultado.passou
+                ? 'i-lucide-circle-check'
+                : 'i-lucide-circle-alert'
+            "
+          />
           <strong>{{ summary.title }}</strong>
         </div>
 
@@ -78,51 +106,83 @@
           title="Primeiro erro"
           :description="summary.executionError"
         />
-      </div>
+      </UCard>
 
-      <p v-else class="placeholder-text">A submissão oficial ainda não foi enviada.</p>
+      <p v-else class="placeholder-text">
+        A submissão oficial ainda não foi enviada.
+      </p>
     </section>
-  </div>
+  </UCard>
 </template>
 
 <script setup lang="ts">
-import type { CodigoArquivo, ResultadoCorrecao } from '#shared/types/exam'
-import { getCorrectionSummary } from '~/utils/result-summary'
+import type { CodigoArquivo, ResultadoCorrecao } from "#shared/types/exam";
+import { getCorrectionSummary } from "~/utils/result-summary";
 
 const props = defineProps<{
-  questaoId: number
-  codigo: string
-  arquivos: CodigoArquivo[]
-  resultado: ResultadoCorrecao | null
-}>()
+  questaoId: number;
+  codigo: string;
+  codigoTeste: string;
+  stdin: string;
+  arquivos: CodigoArquivo[];
+  resultado: ResultadoCorrecao | null;
+}>();
 
-const exam = useExamStore()
-const { carregando, executando, outputExecucao, erroExecucao, provaFinalizada } = storeToRefs(exam)
-const { executar, submeter } = exam
+const exam = useExamStore();
+const { carregando, executando, provaFinalizada, validacoes } =
+  storeToRefs(exam);
+const { atualizarValidacaoLocal, executar, submeter } = exam;
 
-const inputText = ref('')
-const codigoTeste = ref('')
-const summary = computed(() => props.resultado
-  ? getCorrectionSummary(props.resultado)
-  : { title: '0% correto', percent: 0, hasExecutionError: false, executionError: undefined }
-)
+const validacaoAtual = computed(
+  () =>
+    validacoes.value[props.questaoId] ?? {
+      codigoTeste: props.codigoTeste,
+      stdin: props.stdin,
+      output: "",
+      erro: undefined,
+    },
+);
+const codigoTesteLocal = computed({
+  get: () => validacaoAtual.value.codigoTeste,
+  set: (value: string) =>
+    atualizarValidacaoLocal(props.questaoId, { codigoTeste: value }),
+});
+const stdinLocal = computed({
+  get: () => validacaoAtual.value.stdin,
+  set: (value: string) =>
+    atualizarValidacaoLocal(props.questaoId, { stdin: value }),
+});
+const outputExecucao = computed(() => validacaoAtual.value.output);
+const erroExecucao = computed(() => validacaoAtual.value.erro);
+const summary = computed(() =>
+  props.resultado
+    ? getCorrectionSummary(props.resultado)
+    : {
+        title: "0% correto",
+        percent: 0,
+        hasExecutionError: false,
+        executionError: undefined,
+      },
+);
 
 async function handleValidar() {
-  await executar(props.codigo, inputText.value || undefined, props.arquivos, codigoTeste.value || undefined)
+  await executar(
+    props.questaoId,
+    props.codigo,
+    stdinLocal.value || undefined,
+    props.arquivos,
+    codigoTesteLocal.value || undefined,
+  );
 }
 
 async function handleSubmeter() {
-  await submeter(props.questaoId)
+  await submeter(props.questaoId);
 }
 </script>
 
 <style scoped>
 .io-panel {
-  display: flex;
-  flex-direction: column;
-  gap: 14px;
-  border-radius: 8px;
-  padding: 14px;
+  min-height: 100%;
 }
 
 .io-section {
@@ -131,17 +191,12 @@ async function handleSubmeter() {
   gap: 10px;
 }
 
-.submission-section {
-  border-top: 1px solid rgba(25, 211, 255, 0.14);
-  padding-top: 14px;
-}
-
 .panel-title,
 .io-label {
   display: flex;
   align-items: center;
   gap: 8px;
-  color: rgba(25, 211, 255, 0.82);
+  color: var(--ui-primary);
   font-family: "Roboto Mono", monospace;
   font-size: 12px;
   font-weight: 800;
@@ -150,26 +205,24 @@ async function handleSubmeter() {
 }
 
 .io-label {
-  color: rgba(244, 247, 251, 0.54);
+  color: var(--ui-text-muted);
   font-size: 11px;
 }
 
-.io-input {
-  min-height: 94px;
-}
-
-.code-test-input {
-  min-height: 124px;
-}
-
 .io-output {
+  border: 1px solid color-mix(in oklab, var(--ui-border-muted) 86%, transparent);
+  border-radius: 8px;
+  background: color-mix(in oklab, var(--ui-bg) 92%, black);
   max-height: 180px;
   min-height: 120px;
   overflow-y: auto;
+  padding: 12px;
+  font-family: "Roboto Mono", monospace;
+  font-size: 13px;
 }
 
 .io-output.has-error {
-  border-color: rgba(255, 77, 143, 0.5);
+  border-color: color-mix(in oklab, var(--ui-error) 48%, transparent);
 }
 
 .output-text,
@@ -180,34 +233,24 @@ async function handleSubmeter() {
 }
 
 .output-text {
-  color: #33e28f;
+  color: var(--color-arena-green);
 }
 
 .error-text {
-  color: #ff4d8f;
+  color: var(--color-arena-rose);
 }
 
 .placeholder-text {
-  color: rgba(244, 247, 251, 0.32);
+  color: var(--ui-text-dimmed);
   font-style: italic;
 }
 
-.submission-result {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  border: 1px solid rgba(148, 163, 184, 0.14);
-  border-radius: 8px;
-  background: rgba(5, 8, 15, 0.38);
-  padding: 12px;
-}
-
 .submission-result.is-success {
-  border-color: rgba(51, 226, 143, 0.24);
+  border-color: color-mix(in oklab, var(--ui-success) 26%, transparent);
 }
 
 .submission-result.is-fail {
-  border-color: rgba(255, 77, 143, 0.24);
+  border-color: color-mix(in oklab, var(--ui-error) 26%, transparent);
 }
 
 .result-line {
@@ -221,10 +264,10 @@ async function handleSubmeter() {
 }
 
 .submission-result.is-success .result-line {
-  color: #33e28f;
+  color: var(--color-arena-green);
 }
 
 .submission-result.is-fail .result-line {
-  color: #ffb020;
+  color: var(--color-arena-amber);
 }
 </style>

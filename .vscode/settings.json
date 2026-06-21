@@ -1,0 +1,34 @@
+{
+  "workbench.colorTheme": "Solarized Dark",
+  "claudeCode.preferredLocation": "sidebar",
+  "dbcode.cloudProviders": [],
+  "dbcode.connections": [],
+  "workbench.auxiliaryActivityBar.location": "default",
+  "python.languageServer": "Default",
+  "python-envs.pythonProjects": [],
+  "http.systemCertificatesNode": true,
+  "geminicodeassist.project": "bustling-cortex-m70k4",
+  "securecoder.enabled": true,
+  "security.promptForLocalFileProtocolHandling": false,
+  "geminicodeassist.displayInlineContextHint": false,
+  "editor.wordWrap": "on",
+
+  "editor.formatOnSave": true,
+
+  "[vue]": {
+    "editor.defaultFormatter": "Vue.volar"
+  },
+
+  "[json]": {
+    "editor.formatOnSave": false
+  },
+
+  "[jsonc]": {
+    "editor.formatOnSave": false
+  },
+
+  "json.schemas": [],
+
+  "workbench.settings.editor": "json",
+  "workbench.settings.useSplitJSON": true
+}

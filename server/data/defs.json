@@ -6,9 +6,22 @@
             "texto": "Em um sistema simples de análise de dados, uma lista armazena valores inteiros coletados durante uma atividade. Crie a função somar_lista(lista), que receba uma lista de números inteiros e retorne a soma de todos os elementos. A função deve usar return, não deve imprimir nada na tela e deve funcionar também para lista vazia.",
             "funcao_nome": "somar_lista",
             "funcao_assinatura": "def somar_lista(lista):\n    # Escreva seu código aqui\n    pass",
+            "exemplo_entrada": [
+                "[2, 4, 6]",
+                "[1, 2, 3, 4, 5]",
+                "[-1, -2, -3]"
+            ],
+            "exemplo_saida": [
+                12, 
+                15,
+                -6
+            ],
             "impedimentos": [
-                "não usar import",
-                "não usar max(), min(), sum(), len()"
+                "import",
+                "max()",
+                "min()",
+                "sum()",
+                "len()"
             ],
             "tags": [
                 "python",
@@ -30,7 +43,7 @@
                 },
                 {
                     "entrada": [
-                        2,
+                        2, 
                         4,
                         6
                     ],
@@ -110,9 +123,22 @@
             "texto": "Em um relatório de desempenho, uma lista guarda variações inteiras, podendo conter perdas, valores nulos e ganhos. Crie a função contar_positivos(lista), que receba uma lista de números inteiros e retorne quantos elementos são positivos, isto é, maiores que zero. A função deve usar return, não deve imprimir nada e deve funcionar para lista vazia.",
             "funcao_nome": "contar_positivos",
             "funcao_assinatura": "def contar_positivos(lista):\n    # Escreva seu código aqui\n    pass",
+            "exemplo_entrada": [
+                "[2, 4, 6]",
+                "[1, 2, 3, 4, 5]",
+                "[-1, -2, -3]"
+            ],
+            "exemplo_saida": [
+                3,
+                5,
+                0
+            ],
             "impedimentos": [
-                "não usar import",
-                "não usar max(), min(), sum(), len()"
+                "import",
+                "max()",
+                "min()",
+                "sum()",
+                "len()"
             ],
             "tags": [
                 "python",
@@ -122,10 +148,6 @@
                 "condicional",
                 "return"
             ],
-            "exemplo": {
-                "chamada": "contar_positivos([-2, 0, 5, 8, -1])",
-                "retorno_esperado": 2
-            },
             "gabarito": "def contar_positivos(lista):\n    contador = 0\n    for numero in lista:\n        if numero > 0:\n            contador += 1\n    return contador",
             "testes": [
                 {

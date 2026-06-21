@@ -5,20 +5,20 @@
  * Aplicado apenas nas páginas que usam definePageMeta({ middleware: 'auth' }).
  */
 export default defineNuxtRouteMiddleware(async () => {
-  if (import.meta.server) return
+  if (import.meta.server) return;
 
-  await waitForFirebaseAuth()
+  await waitForFirebaseAuth();
 
-  const user = useFirebaseUser()
-  const email = String(user.value?.email || '').toLowerCase()
+  const user = useFirebaseUser();
+  const email = String(user.value?.email || "").toLowerCase();
 
   if (!user.value) {
-    return navigateTo('/')
+    return navigateTo("/");
   }
 
-  if (!email.endsWith('@ufms.br')) {
-    const { signOut } = await import('firebase/auth')
-    await signOut(useFirebaseAuthClient())
-    return navigateTo('/?error=domain')
+  if (!email.endsWith("@ufms.br")) {
+    const { signOut } = await import("firebase/auth");
+    await signOut(useFirebaseAuthClient());
+    return navigateTo("/?error=domain");
   }
-})
+});

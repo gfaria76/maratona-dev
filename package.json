@@ -11,6 +11,8 @@
     "preview": "nuxt preview",
     "postinstall": "nuxt prepare",
     "test": "vitest run",
+    "format": "pnpm exec prettier . --write",
+    "format:json": "pnpm exec prettier \"**/*.json\" --write",
     "typecheck": "nuxt typecheck",
     "firebase:deploy": "firebase deploy --only firestore:rules,firestore:indexes",
     "firebase:deploy:apphosting": "firebase apphosting:backends:list",
@@ -44,8 +46,10 @@
   "devDependencies": {
     "@vue/test-utils": "^2.4.11",
     "happy-dom": "^20.10.6",
+    "prettier": "3.8.4",
     "tailwindcss": "^4.3.1",
     "typescript": "~6.0.3",
+    "vite-plugin-static-copy": "^4.1.1",
     "vitest": "^4.1.9"
   }
 }

@@ -2,7 +2,7 @@
   <section class="question-panel">
     <div class="workspace-grid">
       <div class="left-stage">
-        <section class="brief-card arena-card">
+        <UCard class="brief-card" :ui="{ body: 'brief-card-body' }">
           <div class="statement">
             <div class="question-heading">
               <UBadge color="primary" variant="soft">Q{{ questao.id }}</UBadge>
@@ -18,7 +18,12 @@
                 <strong>Impedimentos</strong>
               </div>
               <div class="badge-row">
-                <UBadge v-for="imp in questao.impedimentos" :key="imp" color="error" variant="outline">
+                <UBadge
+                  v-for="imp in questao.impedimentos"
+                  :key="imp"
+                  color="error"
+                  variant="outline"
+                >
                   {{ imp }}
                 </UBadge>
               </div>
@@ -31,11 +36,13 @@
               </div>
               <div class="example-code">
                 <code>>>> {{ questao.exemplo.chamada }}</code>
-                <code class="example-result">{{ formatValue(questao.exemplo.retorno_esperado) }}</code>
+                <code class="example-result">{{
+                  formatValue(questao.exemplo.retorno_esperado)
+                }}</code>
               </div>
             </div>
           </div>
-        </section>
+        </UCard>
 
         <div class="editor-zone">
           <div class="section-title">
@@ -46,7 +53,9 @@
             class="student-editor"
             :model-value="codigo"
             :files="arquivosQuestao"
-            @update:model-value="(val: string) => atualizarCodigo(questao.id, val)"
+            @update:model-value="
+              (val: string) => atualizarCodigo(questao.id, val)
+            "
             @update:files="(val) => atualizarArquivos(questao.id, val)"
             @large-paste="handleLargePaste"
           />
@@ -54,38 +63,52 @@
       </div>
 
       <aside class="side-zone">
-        <IoPanel :questao-id="questao.id" :codigo="codigo" :arquivos="arquivosQuestao" :resultado="resultado" />
+        <IoPanel
+          :questao-id="questao.id"
+          :codigo="codigo"
+          :codigo-teste="questao.codigo_teste"
+          :stdin="questao.stdin"
+          :arquivos="arquivosQuestao"
+          :resultado="resultado"
+        />
       </aside>
     </div>
   </section>
 </template>
 
 <script setup lang="ts">
-import type { QuestaoPublica } from '#shared/types/exam'
+import type { QuestaoPublica } from "#shared/types/exam";
 
 const props = defineProps<{
-  questao: QuestaoPublica
-}>()
+  questao: QuestaoPublica;
+}>();
 
-const exam = useExamStore()
-const { arquivos, codigos, resultados } = storeToRefs(exam)
-const { atualizarArquivos, atualizarCodigo, reportarEventoSeguranca } = exam
+const exam = useExamStore();
+const { arquivos, codigos, resultados } = storeToRefs(exam);
+const { atualizarArquivos, atualizarCodigo, reportarEventoSeguranca } = exam;
 
-const codigo = computed(() => codigos.value[props.questao.id] || props.questao.funcao_assinatura)
-const arquivosQuestao = computed(() => arquivos.value[props.questao.id] ?? [{ name: 'main.py', content: codigo.value }])
-const resultado = computed(() => resultados.value[props.questao.id] ?? null)
+const codigo = computed(
+  () => codigos.value[props.questao.id] || props.questao.funcao_assinatura,
+);
+const arquivosQuestao = computed(
+  () =>
+    arquivos.value[props.questao.id] ?? [
+      { name: "main.py", content: codigo.value },
+    ],
+);
+const resultado = computed(() => resultados.value[props.questao.id] ?? null);
 
 function handleLargePaste(payload: { length: number }) {
-  reportarEventoSeguranca('large_paste', {
+  reportarEventoSeguranca("large_paste", {
     questaoId: props.questao.id,
     pastedLength: payload.length,
-  })
+  });
 }
 
 function formatValue(val: unknown): string {
-  if (val === undefined || val === null) return '-'
-  if (typeof val === 'string') return val
-  return JSON.stringify(val)
+  if (val === undefined || val === null) return "-";
+  if (typeof val === "string") return val;
+  return JSON.stringify(val);
 }
 </script>
 
@@ -115,11 +138,14 @@ function formatValue(val: unknown): string {
 }
 
 .brief-card {
+  overflow: hidden;
+}
+
+.brief-card :deep(.brief-card-body) {
   display: grid;
   grid-template-columns: minmax(0, 1.45fr) minmax(320px, 0.95fr);
   gap: 14px;
   align-items: stretch;
-  border-radius: 8px;
   padding: 14px;
 }
 
@@ -146,7 +172,7 @@ function formatValue(val: unknown): string {
 
 .statement p {
   margin: 0;
-  color: rgba(244, 247, 251, 0.72);
+  color: var(--ui-text-muted);
   font-size: 14px;
   line-height: 1.48;
 }
@@ -168,13 +194,13 @@ function formatValue(val: unknown): string {
 }
 
 .rule-strip {
-  border: 1px solid rgba(255, 77, 143, 0.24);
-  background: rgba(255, 77, 143, 0.08);
+  border: 1px solid color-mix(in oklab, var(--ui-error) 24%, transparent);
+  background: color-mix(in oklab, var(--ui-error) 8%, transparent);
 }
 
 .example-strip {
-  border: 1px solid rgba(255, 176, 32, 0.24);
-  background: rgba(255, 176, 32, 0.07);
+  border: 1px solid color-mix(in oklab, var(--ui-warning) 24%, transparent);
+  background: color-mix(in oklab, var(--ui-warning) 7%, transparent);
 }
 
 .strip-title {
@@ -189,11 +215,11 @@ function formatValue(val: unknown): string {
 }
 
 .rule-strip .strip-title {
-  color: #ff4d8f;
+  color: var(--ui-error);
 }
 
 .example-strip .strip-title {
-  color: #ffb020;
+  color: var(--ui-warning);
 }
 
 .badge-row {
@@ -219,7 +245,7 @@ function formatValue(val: unknown): string {
 }
 
 .example-result {
-  color: #33e28f;
+  color: var(--color-arena-green);
 }
 
 .editor-zone,
@@ -246,7 +272,7 @@ function formatValue(val: unknown): string {
   display: flex;
   align-items: center;
   gap: 8px;
-  color: rgba(25, 211, 255, 0.82);
+  color: var(--ui-primary);
   font-family: "Roboto Mono", monospace;
   font-size: 12px;
   font-weight: 700;
@@ -259,7 +285,7 @@ function formatValue(val: unknown): string {
     grid-template-columns: 1fr;
   }
 
-  .brief-card {
+  .brief-card :deep(.brief-card-body) {
     grid-template-columns: 1fr;
   }
 

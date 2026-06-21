@@ -3,114 +3,149 @@
  *
  * Executes Python code with Pyodide inside a disposable worker thread.
  */
-import { createRequire } from 'node:module'
-import { dirname } from 'node:path'
-import { Worker } from 'node:worker_threads'
-import type { CodigoArquivo } from '#shared/types/exam'
+import { createRequire } from "node:module";
+import { dirname } from "node:path";
+import { Worker } from "node:worker_threads";
+import type { CodigoArquivo } from "#shared/types/exam";
 
-const TIMEOUT_MS = 10_000
-const require = createRequire(import.meta.url)
-const PYODIDE_INDEX_URL = dirname(require.resolve('pyodide'))
+const TIMEOUT_MS = 10_000;
+const require = createRequire(import.meta.url);
+const PYODIDE_INDEX_URL = dirname(require.resolve("pyodide"));
 
 export interface ExecResult {
-  output: string
-  erro?: string
+  output: string;
+  erro?: string;
 }
 
 export interface TesteResult {
-  passou: boolean
-  obtido: string
-  saida: string
-  erro?: boolean
+  passou: boolean;
+  obtido: string;
+  saida: string;
+  erro?: boolean;
 }
 
 interface WorkerPayload {
-  codigo: string
-  inputs?: string
-  arquivos: CodigoArquivo[]
-  indexURL: string
+  codigo: string;
+  inputs?: string;
+  arquivos: CodigoArquivo[];
+  indexURL: string;
 }
 
 interface WorkerResult extends ExecResult {
-  type: 'result'
+  type: "result";
 }
 
 interface WorkerFailure {
-  type: 'error'
-  erro: string
+  type: "error";
+  erro: string;
 }
 
-type WorkerMessage = WorkerResult | WorkerFailure
+type WorkerMessage = WorkerResult | WorkerFailure;
 
 function isSafePythonFileName(name: string): boolean {
   return (
-    name.endsWith('.py') &&
-    !name.startsWith('/') &&
-    !name.startsWith('\\') &&
-    !name.includes('..') &&
+    name.endsWith(".py") &&
+    !name.startsWith("/") &&
+    !name.startsWith("\\") &&
+    !name.includes("..") &&
     /^[A-Za-z0-9_./-]+$/.test(name)
-  )
+  );
 }
 
 function normalizeExtraFiles(arquivos: CodigoArquivo[] = []): CodigoArquivo[] {
-  const seen = new Set<string>()
+  const seen = new Set<string>();
   return arquivos
     .map((arquivo) => ({
-      name: arquivo.name.trim().replace(/\\/g, '/').replace(/^\/+/, ''),
-      content: arquivo.content ?? '',
+      name: arquivo.name.trim().replace(/\\/g, "/").replace(/^\/+/, ""),
+      content: arquivo.content ?? "",
     }))
     .filter((arquivo) => {
-      if (!arquivo.name || arquivo.name === 'main.py' || seen.has(arquivo.name)) return false
-      if (!isSafePythonFileName(arquivo.name)) return false
-      seen.add(arquivo.name)
-      return true
-    })
+      if (!arquivo.name || arquivo.name === "main.py" || seen.has(arquivo.name))
+        return false;
+      if (!isSafePythonFileName(arquivo.name)) return false;
+      seen.add(arquivo.name);
+      return true;
+    });
 }
 
 /**
  * Executa código Python genérico (para o botão "Executar/Testar").
  */
-export async function executarPython(codigo: string, inputs?: string, arquivos: CodigoArquivo[] = []): Promise<ExecResult> {
+export async function executarPython(
+  codigo: string,
+  inputs?: string,
+  arquivos: CodigoArquivo[] = [],
+): Promise<ExecResult> {
   return await runPythonInWorker({
     codigo,
     inputs,
     arquivos: normalizeExtraFiles(arquivos),
     indexURL: PYODIDE_INDEX_URL,
-  })
+  });
 }
 
-export function montarCodigoValidacao(codigo: string, codigoTeste?: string): string {
-  const teste = String(codigoTeste || '').trim()
-  if (!teste) return codigo
+export function montarCodigoValidacao(
+  codigo: string,
+  codigoTeste?: string,
+): string {
+  const teste = String(codigoTeste || "").trim();
+  if (!teste) return codigo;
 
-  return `${codigo.trimEnd()}\n\n${teste}`
+  return `${codigo.trimEnd()}\n\n${teste}`;
+}
+
+export function formatPythonUserError(error?: string): string | undefined {
+  const normalized = String(error || "")
+    .replace(/\r\n/g, "\n")
+    .trim();
+  if (!normalized) return undefined;
+
+  const lines = normalized.split("\n");
+  const mainIndex = lines.findIndex((line) => line.includes('File "main.py"'));
+  if (mainIndex === -1) return normalized;
+
+  const userLines: string[] = [];
+  for (const line of lines.slice(mainIndex)) {
+    if (
+      /^\s+at\s/.test(line) ||
+      line.includes("pyodide.asm.wasm") ||
+      line.startsWith("wasm://")
+    )
+      break;
+    userLines.push(line);
+  }
+
+  return userLines.join("\n").trim() || normalized;
 }
 
 /**
  * Valida se o código do aluno respeita os impedimentos.
  */
-export function validarImpedimentos(codigo: string, impedimentos: string[]): string[] {
-  const violacoes: string[] = []
+export function validarImpedimentos(
+  codigo: string,
+  impedimentos: string[],
+): string[] {
+  const violacoes: string[] = [];
 
   for (const imp of impedimentos) {
-    const impLower = imp.toLowerCase()
+    const impLower = imp.toLowerCase();
 
-    if (impLower.includes('import') && /\bimport\b/.test(codigo)) {
-      violacoes.push(imp)
+    if (impLower.includes("import") && /\bimport\b/.test(codigo)) {
+      violacoes.push(imp);
     }
 
-    const funcoesBloqueadas = ['max', 'min', 'sum', 'len', 'sorted', 'sort']
+    const funcoesBloqueadas = ["max", "min", "sum", "len", "sorted", "sort"];
     for (const fn of funcoesBloqueadas) {
       if (impLower.includes(`${fn}()`) || impLower.includes(fn)) {
-        const regex = new RegExp(`\\b${fn}\\s*\\(`, 'g')
+        const regex = new RegExp(`\\b${fn}\\s*\\(`, "g");
         if (regex.test(codigo) && !violacoes.includes(imp)) {
-          violacoes.push(imp)
+          violacoes.push(imp);
         }
       }
     }
   }
 
-  return violacoes
+  return violacoes;
 }
 
 /**
@@ -126,20 +161,21 @@ export async function executarTestes(
   codigo: string,
   funcaoNome: string,
   testes: Array<{ entrada: unknown; esperado: unknown }>,
-  arquivos: CodigoArquivo[] = []
+  arquivos: CodigoArquivo[] = [],
 ): Promise<TesteResult[]> {
-  const testesJson = JSON.stringify(testes)
+  const testesJson = JSON.stringify(testes);
 
   const script = `
 import json
 import sys
 import io
+import traceback
 
 # --- Código do aluno ---
 ${codigo}
 
 # --- Execução dos testes ---
-_testes = json.loads('''${testesJson.replace(/\\/g, '\\\\').replace(/'/g, "\\'")}''')
+_testes = json.loads('''${testesJson.replace(/\\/g, "\\\\").replace(/'/g, "\\'")}''')
 _resultados = []
 
 for _t in _testes:
@@ -164,40 +200,49 @@ for _t in _testes:
         sys.stdout = _old_stdout
         _resultados.append({
             "passou": False,
-            "obtido": str(_e),
+            "obtido": traceback.format_exc(),
             "saida": _buf.getvalue(),
             "erro": True
         })
 
 # Output results as JSON to the original stdout
 print(json.dumps(_resultados))
-`
+`;
 
-  const { output, erro } = await executarPython(script, undefined, arquivos)
+  const { output, erro } = await executarPython(script, undefined, arquivos);
 
   if (erro && !output) {
-    return [{
-      passou: false,
-      obtido: erro,
-      saida: '',
-      erro: true,
-    }]
+    return [
+      {
+        passou: false,
+        obtido: formatPythonUserError(erro) || erro,
+        saida: "",
+        erro: true,
+      },
+    ];
   }
 
   try {
-    const lines = output.trim().split('\n')
-    const jsonLine = lines[lines.length - 1]
+    const lines = output.trim().split("\n");
+    const jsonLine = lines[lines.length - 1];
     if (!jsonLine) {
-      throw new Error('Empty test runner output')
+      throw new Error("Empty test runner output");
     }
-    return JSON.parse(jsonLine)
+    return JSON.parse(jsonLine).map((resultado: TesteResult) => ({
+      ...resultado,
+      obtido: resultado.erro
+        ? formatPythonUserError(resultado.obtido) || resultado.obtido
+        : resultado.obtido,
+    }));
   } catch {
-    return [{
-      passou: false,
-      obtido: `Erro ao processar resultados: ${output || erro}`,
-      saida: '',
-      erro: true,
-    }]
+    return [
+      {
+        passou: false,
+        obtido: `Erro ao processar resultados: ${formatPythonUserError(output || erro) || output || erro}`,
+        saida: "",
+        erro: true,
+      },
+    ];
   }
 }
 
@@ -206,44 +251,55 @@ function runPythonInWorker(payload: WorkerPayload): Promise<ExecResult> {
     const worker = new Worker(PYODIDE_WORKER_SOURCE, {
       eval: true,
       workerData: payload,
-    })
-    let settled = false
+    });
+    let settled = false;
 
     const finish = async (result: ExecResult) => {
-      if (settled) return
-      settled = true
-      clearTimeout(timeout)
-      worker.removeAllListeners()
-      await worker.terminate().catch(() => undefined)
-      resolve(result)
-    }
+      if (settled) return;
+      settled = true;
+      clearTimeout(timeout);
+      worker.removeAllListeners();
+      await worker.terminate().catch(() => undefined);
+      resolve(result);
+    };
 
     const timeout = setTimeout(() => {
       finish({
-        output: '',
-        erro: 'Tempo limite excedido (10s). Verifique se há loops infinitos.',
-      }).catch(() => undefined)
-    }, TIMEOUT_MS)
+        output: "",
+        erro: "Tempo limite excedido (10s). Verifique se há loops infinitos.",
+      }).catch(() => undefined);
+    }, TIMEOUT_MS);
 
-    worker.once('message', (message: WorkerMessage) => {
-      if (message.type === 'result') {
-        finish({ output: message.output, erro: message.erro }).catch(() => undefined)
-        return
+    worker.once("message", (message: WorkerMessage) => {
+      if (message.type === "result") {
+        finish({
+          output: message.output,
+          erro: formatPythonUserError(message.erro),
+        }).catch(() => undefined);
+        return;
       }
 
-      finish({ output: '', erro: message.erro }).catch(() => undefined)
-    })
+      finish({ output: "", erro: formatPythonUserError(message.erro) }).catch(
+        () => undefined,
+      );
+    });
 
-    worker.once('error', (error) => {
-      finish({ output: '', erro: error instanceof Error ? error.message : String(error) }).catch(() => undefined)
-    })
+    worker.once("error", (error) => {
+      finish({
+        output: "",
+        erro: error instanceof Error ? error.message : String(error),
+      }).catch(() => undefined);
+    });
 
-    worker.once('exit', (code) => {
+    worker.once("exit", (code) => {
       if (!settled && code !== 0) {
-        finish({ output: '', erro: `Worker finalizado com código ${code}.` }).catch(() => undefined)
+        finish({
+          output: "",
+          erro: `Worker finalizado com código ${code}.`,
+        }).catch(() => undefined);
       }
-    })
-  })
+    });
+  });
 }
 
 const PYODIDE_WORKER_SOURCE = String.raw`
@@ -313,4 +369,4 @@ function splitInput(input) {
     });
   }
 })();
-`
+`;

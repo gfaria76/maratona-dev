@@ -1,5 +1,8 @@
-import { evaluateAccessAttempt, getSecurityScore } from '../../utils/access-control'
-import { getRequestIp, requireExamUser } from '../../utils/server-auth'
+import {
+  evaluateAccessAttempt,
+  getSecurityScore,
+} from "../../utils/access-control";
+import { getRequestIp, requireExamUser } from "../../utils/server-auth";
 import {
   countSecurityEvents,
   createIpBlocks,
@@ -11,18 +14,18 @@ import {
   listAllowedIpRanges,
   renewSession,
   updateSessionsStatus,
-} from '../../utils/firestore-repositories'
+} from "../../utils/firestore-repositories";
 
 export default defineEventHandler(async (event) => {
-  const user = await requireExamUser(event)
-  const ipAddress = getRequestIp(event)
-  const marathon = await getActiveMarathon()
+  const user = await requireExamUser(event);
+  const ipAddress = getRequestIp(event);
+  const marathon = await getActiveMarathon();
 
   const [allowedRanges, blockedIps, activeSessions] = await Promise.all([
     listAllowedIpRanges(marathon.id),
     listActiveBlocks(marathon.id),
     listActiveSessions(marathon.id),
-  ])
+  ]);
 
   const decision = evaluateAccessAttempt({
     userId: user.id,
@@ -43,20 +46,30 @@ export default defineEventHandler(async (event) => {
       userId: String(session.user_id),
       email: String(session.email),
       ipAddress: String(session.ip_address),
-      status: session.status as 'active' | 'blocked' | 'finished',
+      status: session.status as "active" | "blocked" | "finished",
     })),
-  })
+  });
 
   if (!decision.allowed) {
     if (decision.ipsToBlock.length > 0) {
-      await createIpBlocks(marathon.id, decision.ipsToBlock, decision.reason, decision.conflictingSessionIds)
+      await createIpBlocks(
+        marathon.id,
+        decision.ipsToBlock,
+        decision.reason,
+        decision.conflictingSessionIds,
+      );
     }
 
     if (decision.conflictingSessionIds.length > 0) {
-      await updateSessionsStatus(marathon.id, decision.conflictingSessionIds, 'blocked', {
-        blocked_at: new Date().toISOString(),
-        block_reason: decision.reason,
-      })
+      await updateSessionsStatus(
+        marathon.id,
+        decision.conflictingSessionIds,
+        "blocked",
+        {
+          blocked_at: new Date().toISOString(),
+          block_reason: decision.reason,
+        },
+      );
     }
 
     await createSecurityEvent(marathon.id, {
@@ -64,38 +77,44 @@ export default defineEventHandler(async (event) => {
       email: user.email,
       ip_address: ipAddress,
       event_type: decision.reason,
-      severity: 'critical',
-      metadata: { ipsToBlock: decision.ipsToBlock, conflictingSessionIds: decision.conflictingSessionIds },
-    })
+      severity: "critical",
+      metadata: {
+        ipsToBlock: decision.ipsToBlock,
+        conflictingSessionIds: decision.conflictingSessionIds,
+      },
+    });
 
     return {
       allowed: false,
       reason: decision.reason,
       ipAddress,
-    }
+    };
   }
 
-  let sessionId = decision.sessionToRenewId
+  let sessionId = decision.sessionToRenewId;
 
   if (sessionId) {
-    await renewSession(marathon.id, sessionId)
+    await renewSession(marathon.id, sessionId);
   } else {
     sessionId = await createSession(marathon.id, {
       userId: user.id,
       email: user.email,
       ipAddress,
-    })
+    });
   }
 
   const [focusLosses, fullscreenExits, largePastes] = await Promise.all([
-    countSecurityEvents(marathon.id, sessionId, ['visibility_hidden', 'window_blur']),
-    countSecurityEvents(marathon.id, sessionId, ['fullscreen_exit']),
-    countSecurityEvents(marathon.id, sessionId, ['large_paste']),
-  ])
+    countSecurityEvents(marathon.id, sessionId, [
+      "visibility_hidden",
+      "window_blur",
+    ]),
+    countSecurityEvents(marathon.id, sessionId, ["fullscreen_exit"]),
+    countSecurityEvents(marathon.id, sessionId, ["large_paste"]),
+  ]);
 
   return {
     allowed: true,
-    reason: 'allowed',
+    reason: "allowed",
     ipAddress,
     sessionId,
     securityScore: getSecurityScore({
@@ -103,5 +122,5 @@ export default defineEventHandler(async (event) => {
       fullscreenExits,
       largePastes,
     }),
-  }
-})
+  };
+});

@@ -16,18 +16,19 @@
   --color-arena-panel-2: #171b28;
   --color-arena-line: #263247;
   --color-arena-cyan: #19d3ff;
-  --color-arena-pink: #ff4d8f;
+  --color-arena-rose: #ff4d8f;
   --color-arena-amber: #ffb020;
   --color-arena-green: #33e28f;
 }
 
 :root {
   --ui-primary: var(--color-cyan-500);
-  --ui-secondary: var(--color-pink-500);
+  --ui-secondary: var(--color-sky-500);
   --ui-success: var(--color-emerald-500);
   --ui-warning: var(--color-amber-500);
   --ui-error: var(--color-rose-500);
   --ui-neutral: var(--color-zinc-500);
+  --ui-radius: 0.5rem;
   color-scheme: dark;
 }
 
@@ -35,14 +36,14 @@ html,
 body,
 #__nuxt {
   min-height: 100%;
-  background: #07080d;
+  background: var(--color-arena-bg);
 }
 
 body {
   margin: 0;
   overflow: hidden;
   font-family: "Roboto", sans-serif;
-  color: #f4f7fb;
+  color: var(--ui-text);
 }
 
 button,
@@ -54,31 +55,40 @@ input {
 .arena-bg {
   min-height: 100dvh;
   background:
-    radial-gradient(circle at 10% 10%, rgba(25, 211, 255, 0.18), transparent 32rem),
-    radial-gradient(circle at 90% 0%, rgba(255, 77, 143, 0.16), transparent 30rem),
-    linear-gradient(135deg, #07080d 0%, #0b1020 52%, #080812 100%);
+    linear-gradient(90deg, rgba(25, 211, 255, 0.06), transparent 1px),
+    linear-gradient(rgba(25, 211, 255, 0.04), transparent 1px),
+    linear-gradient(135deg, #07080d 0%, #0b1020 56%, #080812 100%);
+  background-size:
+    48px 48px,
+    48px 48px,
+    auto;
 }
 
 .arena-grid {
   position: absolute;
   inset: 0;
   pointer-events: none;
-  background-image:
-    linear-gradient(rgba(25, 211, 255, 0.055) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(25, 211, 255, 0.055) 1px, transparent 1px);
-  background-size: 44px 44px;
+  background:
+    radial-gradient(
+      circle at 12% 14%,
+      rgba(25, 211, 255, 0.14),
+      transparent 28rem
+    ),
+    radial-gradient(
+      circle at 92% 8%,
+      rgba(14, 165, 233, 0.12),
+      transparent 28rem
+    );
   mask-image: linear-gradient(to bottom, black, transparent 85%);
 }
 
-.arena-card {
-  border: 1px solid rgba(148, 163, 184, 0.18);
-  background: rgba(16, 19, 29, 0.82);
-  box-shadow: 0 18px 50px rgba(0, 0, 0, 0.28);
-  backdrop-filter: blur(16px);
-}
-
 .arena-gradient-text {
-  background: linear-gradient(135deg, #19d3ff 0%, #f4f7fb 45%, #ff4d8f 100%);
+  background: linear-gradient(
+    135deg,
+    var(--color-arena-cyan) 0%,
+    #f4f7fb 48%,
+    #38bdf8 100%
+  );
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
@@ -87,41 +97,21 @@ input {
 .arena-kicker {
   font-family: "Roboto Mono", monospace;
   font-size: 0.72rem;
-  letter-spacing: 0.16em;
+  letter-spacing: 0.08em;
   text-transform: uppercase;
-  color: rgba(25, 211, 255, 0.78);
-}
-
-.terminal-panel {
-  border: 1px solid rgba(25, 211, 255, 0.22);
-  border-radius: 8px;
-  background: rgba(5, 8, 15, 0.92);
-  color: #33e28f;
-  font-family: "Roboto Mono", monospace;
-  font-size: 13px;
-  outline: none;
-  padding: 12px;
-  resize: none;
-  transition: border-color 0.2s ease, box-shadow 0.2s ease;
-}
-
-.terminal-panel:focus {
-  border-color: rgba(25, 211, 255, 0.72);
-  box-shadow: 0 0 0 3px rgba(25, 211, 255, 0.12);
-}
-
-.terminal-panel::placeholder {
-  color: rgba(244, 247, 251, 0.28);
+  color: color-mix(in oklab, var(--ui-primary) 78%, var(--ui-text));
 }
 
 .cm-editor {
   height: 100%;
   overflow: hidden;
-  border: 1px solid rgba(25, 211, 255, 0.22);
+  border: 1px solid color-mix(in oklab, var(--ui-primary) 22%, transparent);
   border-radius: 8px;
   font-family: "Roboto Mono", monospace !important;
   font-size: 14px;
-  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease;
 }
 
 .cm-editor .cm-scroller {
@@ -129,40 +119,104 @@ input {
 }
 
 .cm-editor.cm-focused {
-  border-color: rgba(25, 211, 255, 0.86);
-  box-shadow: 0 0 0 3px rgba(25, 211, 255, 0.12);
+  border-color: color-mix(in oklab, var(--ui-primary) 78%, transparent);
+  box-shadow: 0 0 0 3px color-mix(in oklab, var(--ui-primary) 14%, transparent);
   outline: none;
 }
 
 .cm-editor .cm-gutters {
-  border-right: 1px solid rgba(25, 211, 255, 0.12);
-  background: #090d16;
+  border-right: 1px solid
+    color-mix(in oklab, var(--ui-primary) 12%, transparent);
+  background: color-mix(in oklab, var(--ui-bg) 88%, black);
 }
 
-.status-pendente { color: rgba(244, 247, 251, 0.42); }
-.status-correta { color: #33e28f; }
-.status-incorreta { color: #ff4d8f; }
-.status-erro { color: #ffb020; }
+.status-pendente {
+  color: var(--ui-text-dimmed);
+}
+.status-correta {
+  color: var(--color-arena-green);
+}
+.status-incorreta {
+  color: var(--color-arena-rose);
+}
+.status-erro {
+  color: var(--color-arena-amber);
+}
 
 @keyframes pulse-alert {
-  0%, 100% { opacity: 1; filter: drop-shadow(0 0 0 rgba(255, 77, 143, 0)); }
-  50% { opacity: 0.62; filter: drop-shadow(0 0 12px rgba(255, 77, 143, 0.48)); }
+  0%,
+  100% {
+    opacity: 1;
+    filter: drop-shadow(0 0 0 rgba(255, 77, 143, 0));
+  }
+  50% {
+    opacity: 0.62;
+    filter: drop-shadow(0 0 12px rgba(255, 77, 143, 0.48));
+  }
 }
 
 @keyframes spin {
-  to { transform: rotate(360deg); }
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 .timer-warning {
   animation: pulse-alert 1s ease-in-out infinite;
-  color: #ff4d8f;
+  color: var(--color-arena-rose);
 }
 
 .spin-icon {
   animation: spin 1s linear infinite;
 }
 
-::-webkit-scrollbar { width: 8px; height: 8px; }
-::-webkit-scrollbar-track { background: transparent; }
-::-webkit-scrollbar-thumb { background: rgba(25, 211, 255, 0.28); border-radius: 999px; }
-::-webkit-scrollbar-thumb:hover { background: rgba(25, 211, 255, 0.55); }
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(25, 211, 255, 0.28);
+  border-radius: 999px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(25, 211, 255, 0.55);
+}
+
+.auth-shell {
+  display: grid;
+  min-height: 100dvh;
+  place-items: center;
+  background: var(--color-arena-bg);
+  padding: 24px;
+}
+
+.auth-panel {
+  display: flex;
+  width: min(420px, 100%);
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  border: 1px solid color-mix(in oklab, var(--ui-primary) 18%, transparent);
+  border-radius: 8px;
+  background: color-mix(in oklab, var(--ui-bg-elevated) 82%, transparent);
+  padding: 28px;
+  text-align: center;
+}
+
+.auth-panel svg {
+  color: var(--ui-primary);
+}
+
+.auth-panel h1 {
+  color: var(--ui-text-highlighted);
+  font-size: 22px;
+  font-weight: 800;
+}
+
+.auth-panel p {
+  color: var(--ui-text-muted);
+  line-height: 1.5;
+}

@@ -7,27 +7,33 @@
         <p class="arena-kicker">Arena UFMS // Python</p>
         <h1 class="arena-gradient-text">Prova Python</h1>
         <p class="brand-copy">
-          Entre com sua conta institucional, confirme a rede autorizada e comece a prova em modo monitorado.
+          Entre com sua conta institucional, confirme a rede autorizada e comece
+          a prova em modo monitorado.
         </p>
       </div>
 
-      <div class="arena-card mission-panel">
+      <UCard class="mission-panel" :ui="{ body: 'mission-panel-body' }">
         <div class="panel-header">
           <div>
             <p class="arena-kicker">Briefing</p>
-            <h2>{{ config?.titulo || 'Carregando prova' }}</h2>
+            <h2>{{ config?.titulo || "Carregando prova" }}</h2>
           </div>
-          <UBadge color="primary" variant="soft">{{ totalQuestoes }} questões</UBadge>
+          <UBadge color="primary" variant="soft"
+            >{{ totalQuestoes }} questões</UBadge
+          >
         </div>
 
         <p class="welcome-copy">
-          {{ config?.mensagem_boas_vindas || 'Aguarde enquanto preparamos a arena.' }}
+          {{
+            config?.mensagem_boas_vindas ||
+            "Aguarde enquanto preparamos a arena."
+          }}
         </p>
 
         <div class="mission-stats">
           <div>
             <UIcon name="i-lucide-clock-3" />
-            <span>{{ config?.duracao_minutos || '---' }} min</span>
+            <span>{{ config?.duracao_minutos || "---" }} min</span>
           </div>
           <div>
             <UIcon name="i-lucide-shield-check" />
@@ -92,74 +98,77 @@
             />
           </template>
         </div>
-      </div>
+      </UCard>
     </section>
   </main>
 </template>
 
 <script setup lang="ts">
-import { GoogleAuthProvider, signInWithPopup, signOut } from 'firebase/auth'
-import type { ConfigProva, QuestaoPublica } from '#shared/types/exam'
-import { getErrorMessage } from '~/utils/error-message'
+import { GoogleAuthProvider, signInWithPopup, signOut } from "firebase/auth";
+import type { ConfigProva, QuestaoPublica } from "#shared/types/exam";
+import { getErrorMessage } from "~/utils/error-message";
 
-const router = useRouter()
-const route = useRoute()
-const auth = useFirebaseAuthClient()
-const user = useFirebaseUser()
+const router = useRouter();
+const route = useRoute();
+const auth = useFirebaseAuthClient();
+const user = useFirebaseUser();
 
-const config = ref<ConfigProva | null>(null)
-const totalQuestoes = ref(0)
-const loading = ref(false)
-const errorMessage = ref('')
+const config = ref<ConfigProva | null>(null);
+const totalQuestoes = ref(0);
+const loading = ref(false);
+const errorMessage = ref("");
 
 const displayName = computed(() => {
-  return user.value?.displayName || user.value?.email || 'Competidor'
-})
+  return user.value?.displayName || user.value?.email || "Competidor";
+});
 const avatarUrl = computed(() => {
-  return user.value?.photoURL || undefined
-})
+  return user.value?.photoURL || undefined;
+});
 
-if (route.query.error === 'domain') {
-  errorMessage.value = 'Apenas emails @ufms.br são permitidos.'
+if (route.query.error === "domain") {
+  errorMessage.value = "Apenas emails @ufms.br são permitidos.";
 }
 
 onMounted(async () => {
   try {
-    config.value = await $fetch<ConfigProva>('/api/config')
-    const questoes = await $fetch<QuestaoPublica[]>('/api/questoes')
-    totalQuestoes.value = questoes.length
+    config.value = await $fetch<ConfigProva>("/api/config");
+    const questoes = await $fetch<QuestaoPublica[]>("/api/questoes");
+    totalQuestoes.value = questoes.length;
   } catch (e) {
-    console.error('Failed to load config:', e)
-    errorMessage.value = 'Não foi possível carregar a configuração da prova.'
+    console.error("Failed to load config:", e);
+    errorMessage.value = "Não foi possível carregar a configuração da prova.";
   }
-})
+});
 
 async function handleGoogleLogin() {
-  loading.value = true
-  errorMessage.value = ''
+  loading.value = true;
+  errorMessage.value = "";
   try {
-    const provider = new GoogleAuthProvider()
-    provider.setCustomParameters({ hd: 'ufms.br' })
-    const credential = await signInWithPopup(auth, provider)
-    const email = String(credential.user.email || '').toLowerCase()
+    const provider = new GoogleAuthProvider();
+    provider.setCustomParameters({ hd: "ufms.br" });
+    const credential = await signInWithPopup(auth, provider);
+    const email = String(credential.user.email || "").toLowerCase();
 
-    if (!email.endsWith('@ufms.br')) {
-      await signOut(auth)
-      errorMessage.value = 'Apenas emails @ufms.br são permitidos.'
+    if (!email.endsWith("@ufms.br")) {
+      await signOut(auth);
+      errorMessage.value = "Apenas emails @ufms.br são permitidos.";
     }
   } catch (e: unknown) {
-    errorMessage.value = getErrorMessage(e, 'Não foi possível entrar com Google.')
+    errorMessage.value = getErrorMessage(
+      e,
+      "Não foi possível entrar com Google.",
+    );
   } finally {
-    loading.value = false
+    loading.value = false;
   }
 }
 
 async function handleLogout() {
-  await signOut(auth)
+  await signOut(auth);
 }
 
 function handleIniciarProva() {
-  router.push('/prova')
+  router.push("/prova");
 }
 </script>
 
@@ -192,16 +201,15 @@ function handleIniciarProva() {
 
 .brand-copy {
   max-width: 560px;
-  color: rgba(244, 247, 251, 0.7);
+  color: var(--ui-text-muted);
   font-size: 19px;
   line-height: 1.6;
 }
 
-.mission-panel {
+.mission-panel :deep(.mission-panel-body) {
   display: flex;
   flex-direction: column;
   gap: 22px;
-  border-radius: 8px;
   padding: 24px;
 }
 
@@ -219,7 +227,7 @@ function handleIniciarProva() {
 }
 
 .welcome-copy {
-  color: rgba(244, 247, 251, 0.68);
+  color: var(--ui-text-muted);
   line-height: 1.6;
 }
 
@@ -235,27 +243,28 @@ function handleIniciarProva() {
   flex-direction: column;
   justify-content: center;
   gap: 8px;
-  border: 1px solid rgba(148, 163, 184, 0.16);
+  border: 1px solid var(--ui-border-muted);
   border-radius: 8px;
-  background: rgba(255, 255, 255, 0.035);
+  background: var(--ui-bg-muted);
   padding: 12px;
 }
 
 .mission-stats svg {
-  color: #19d3ff;
+  color: var(--ui-primary);
 }
 
 .mission-stats span {
   font-size: 12px;
-  color: rgba(244, 247, 251, 0.72);
+  color: var(--ui-text-muted);
 }
 
 .user-strip {
   display: flex;
   align-items: center;
   gap: 14px;
-  border: 1px solid rgba(25, 211, 255, 0.22);
+  border: 1px solid color-mix(in oklab, var(--ui-primary) 22%, transparent);
   border-radius: 8px;
+  background: color-mix(in oklab, var(--ui-primary) 6%, transparent);
   padding: 12px;
 }
 
@@ -267,7 +276,7 @@ function handleIniciarProva() {
 
 .user-strip span {
   overflow: hidden;
-  color: rgba(244, 247, 251, 0.58);
+  color: var(--ui-text-muted);
   font-size: 13px;
   text-overflow: ellipsis;
 }
